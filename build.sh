@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Check required arguments
+# Check required environment variables
 : "${BE_SERVER_IP:?Need to set env variable BE_SERVER_IP non-empty}"
 : "${FE_SERVER_IP:?Need to set env variable FE_SERVER_IP non-empty}"
 : "${DB_SERVER_IP:?Need to set env variable DB_SERVER_IP non-empty}"
@@ -36,7 +36,7 @@ edit_be_files() {
 	eSchool/src/main/resources/application.properties
 	sed -i -e "s|DATASOURCE_PASSWORD:root|DATASOURCE_PASSWORD:$DB_USER_PWD|g" \
 	eSchool/src/main/resources/application.properties
-	sed -i -e "s|ESCHOOL_APP_HOST:https://fierce-shore-32592.herokuapp.com|ESCHOOL_APP_HOST:http://$BE_SERVER_IP:8080|g" \
+	sed -i -e "s|ESCHOOL_APP_HOST:https://fierce-shore-32592.herokuapp.com|ESCHOOL_APP_HOST:http://$BE_SERVER_IP|g" \
 	eSchool/src/main/resources/application.properties
 
   sed -i -e "s|35.242.199.77:3306/ejournal|$DB_SERVER_IP:3306/$DATABASE|g" \
@@ -45,7 +45,7 @@ edit_be_files() {
 	eSchool/src/main/resources/application-production.properties
 	sed -i -e "s|DATASOURCE_PASSWORD:CS5eWQxnja0lAESd|DATASOURCE_PASSWORD:$DB_USER_PWD|g" \
 	eSchool/src/main/resources/application-production.properties
-	sed -i -e "s|ESCHOOL_APP_HOST:https://35.240.41.176:8443|ESCHOOL_APP_HOST:http://$BE_SERVER_IP:8080|g" \
+	sed -i -e "s|ESCHOOL_APP_HOST:https://35.240.41.176:8443|ESCHOOL_APP_HOST:http://$BE_SERVER_IP|g" \
 	eSchool/src/main/resources/application-production.properties
 }
 
@@ -55,27 +55,8 @@ edit_fe_files() {
   final_project/src/app/services/token-interceptor.service.ts
 }
 
-add_htaccess() {
-cat <<EOF > "$1"
-RewriteEngine On
-# -- REDIRECTION to https (optional):
-# If you need this, uncomment the next two commands
-# RewriteCond %{HTTPS} !on
-# RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
-# --
-RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -f [OR]
-RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} -d
-
-RewriteRule ^.*$ - [L]
-RewriteRule ^ index.html
-EOF
-}
-
 build_backend() {
   cd eSchool
-  # todo install mvn
-  # compile java project
-  # todo build production jar
   mvn clean && mvn package -DskipTests
   cp target/eschool.jar "../$DIST_DIR_BE"
   echo "Backend is ready!"
@@ -90,7 +71,6 @@ build_frontend() {
   ng build --prod
 
   cp -a ./dist/eSchool/. "../$DIST_DIR_FE"
-  add_htaccess "../$DIST_DIR_FE/.htaccess"
   echo "Frontend is ready!"
   cd -
 }
@@ -98,7 +78,10 @@ build_frontend() {
 main() {
   mkdir -p build
   cd build
-  mkdir -p "$DIST_DIR" "$DIST_DIR_BE" "$DIST_DIR_FE"
+
+  rm -rf "$DIST_DIR_FE"
+  rm -rf "$DIST_DIR_BE"
+  mkdir -p "$DIST_DIR_BE" "$DIST_DIR_FE"
 
   clone_repository https://github.com/protos-kr/eSchool.git eSchool
   edit_be_files
@@ -107,6 +90,11 @@ main() {
   clone_repository https://github.com/yurkovskiy/final_project.git final_project
   edit_fe_files
   build_frontend
+
+  # files from new_files directory will be copied into corresponding
+  # build/ folder
+  cp -a "../new_files/$DIST_DIR_BE/." "$DIST_DIR_BE"
+  cp -a "../new_files/$DIST_DIR_FE/." "$DIST_DIR_FE"
 }
 
 main "$@"

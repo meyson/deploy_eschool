@@ -1,5 +1,9 @@
 Deploy Eschool
 
+Usage:
+
 ```console
-# todo
+chmod +x ./build.sh
+source config.sh && ./build.sh
+vagrant up
 ```
