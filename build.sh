@@ -2,6 +2,7 @@
 
 # Check required environment variables
 : "${BE_SERVER_IP:?Need to set env variable BE_SERVER_IP non-empty}"
+: "${BE_JAVA_PORT:?Need to set env variable BE_JAVA_PORT non-empty}"
 : "${FE_SERVER_IP:?Need to set env variable FE_SERVER_IP non-empty}"
 : "${DB_SERVER_IP:?Need to set env variable DB_SERVER_IP non-empty}"
 : "${DATABASE:?Need to set env variable DATABASE non-empty}"
@@ -33,7 +34,7 @@ edit_be_files() {
 	eSchool/src/main/resources/application.properties
 	sed -i -e "s|DATASOURCE_PASSWORD:root|DATASOURCE_PASSWORD:$DB_USER_PWD|g" \
 	eSchool/src/main/resources/application.properties
-	sed -i -e "s|ESCHOOL_APP_HOST:https://fierce-shore-32592.herokuapp.com|ESCHOOL_APP_HOST:http://$BE_SERVER_IP|g" \
+	sed -i -e "s|ESCHOOL_APP_HOST:https://fierce-shore-32592.herokuapp.com|ESCHOOL_APP_HOST:http://$BE_SERVER_IP:$BE_JAVA_PORT|g" \
 	eSchool/src/main/resources/application.properties
 
   sed -i -e "s|35.242.199.77:3306/ejournal|$DB_SERVER_IP:3306/$DATABASE|g" \
@@ -42,13 +43,13 @@ edit_be_files() {
 	eSchool/src/main/resources/application-production.properties
 	sed -i -e "s|DATASOURCE_PASSWORD:CS5eWQxnja0lAESd|DATASOURCE_PASSWORD:$DB_USER_PWD|g" \
 	eSchool/src/main/resources/application-production.properties
-	sed -i -e "s|ESCHOOL_APP_HOST:https://35.240.41.176:8443|ESCHOOL_APP_HOST:http://$BE_SERVER_IP|g" \
+	sed -i -e "s|ESCHOOL_APP_HOST:https://35.240.41.176:8443|ESCHOOL_APP_HOST:http://$BE_SERVER_IP:$BE_JAVA_PORT|g" \
 	eSchool/src/main/resources/application-production.properties
 }
 
 edit_fe_files() {
   # replace remote address with local IP
-  sed -i -e "s|https://fierce-shore-32592.herokuapp.com|http://$BE_SERVER_IP:8080|g" \
+  sed -i -e "s|https://fierce-shore-32592.herokuapp.com|http://$BE_SERVER_IP|g" \
   final_project/src/app/services/token-interceptor.service.ts
 }
 
@@ -79,6 +80,13 @@ main() {
   rm -rf "$DIST_DIR_FE"
   rm -rf "$DIST_DIR_BE"
   mkdir -p "$DIST_DIR_BE" "$DIST_DIR_FE"
+
+  if ! command -v mvn &> /dev/null
+  then
+      echo "Please install Apache Maven >= 3.6.1 version"
+      echo "sudo apt-get install maven"
+      exit 1
+  fi
 
   clone_repository https://github.com/protos-kr/eSchool.git eSchool
   edit_be_files

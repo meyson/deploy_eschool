@@ -7,7 +7,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |vb|
     vb.linked_clone = true
-    vb.memory = "1024"
+    vb.memory = "700"
     vb.cpus = 2
   end
 
@@ -26,7 +26,7 @@ Vagrant.configure("2") do |config|
     }
   end
 
-  # Backend server
+  # Backend server 1
   config.vm.define "be" do |be|
     be.vm.box = "centos/7"
     be.vm.hostname = "orc-be.test"
@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
     }
   end
 
-  # Frontend server
+  # Frontend server 1
   config.vm.define "fe" do |fe|
     fe.vm.box = "centos/7"
     fe.vm.hostname = "orc-fe.test"

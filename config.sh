@@ -4,6 +4,7 @@
 export BE_SERVER_IP="192.168.60.10"
 export FE_SERVER_IP="192.168.60.11"
 export FE_VHOST_NAME="eschool"
+export BE_JAVA_PORT="8080"
 
 # Database server
 export DB_SERVER_IP="192.168.60.15"
