@@ -20,9 +20,16 @@ clone_repository() {
 }
 
 install_node() {
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+  if ! command -v nvm &> /dev/null
+  then
+      echo "Please install Node Version Manager."
+      echo "To install or update nvm, you should run the install script."
+      echo "wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash"
+      echo "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash"
+      exit 2
+  fi
   # https://unix.stackexchange.com/questions/184508/nvm-command-not-available-in-bash-script
-  . ~/.nvm/nvm.sh
+  source ~/.nvm/nvm.sh
   nvm install "$1"
 }
 
