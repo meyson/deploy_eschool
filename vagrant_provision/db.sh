@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# todo check env vars
-
-mysql_create_user() { 
+mysql_create_user() {
 mysql << EOF
 CREATE USER '$1'@'$3' IDENTIFIED BY '$2';
 GRANT ALL PRIVILEGES ON * . * TO '$1'@'$3';
@@ -18,6 +16,7 @@ install_mysql() {
 }
 
 install_mysql
-mysql -e "CREATE DATABASE $DATABASE;"
-mysql_create_user "$DB_USER_NAME" "$DB_USER_PWD" "$DB_USER_HOST"
+mysql -e "CREATE DATABASE $DATABASE;" 2>/dev/null
+mysql_create_user "$DB_USER_NAME" "$DB_USER_PWD" "$BE_SERVER_1"
+mysql_create_user "$DB_USER_NAME" "$DB_USER_PWD" "$BE_SERVER_2"
 service mysql restart

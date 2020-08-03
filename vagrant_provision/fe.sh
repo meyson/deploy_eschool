@@ -1,5 +1,5 @@
 ##!/usr/bin/env bash
-# check env args
+
 : "${FE_VHOST_NAME:?Need to set env variable FE_VHOST_NAME non-empty}"
 
 install_httpd() {
