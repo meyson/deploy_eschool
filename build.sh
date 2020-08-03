@@ -3,7 +3,6 @@
 # Check required environment variables
 : "${BE_SERVER_IP:?Need to set env variable BE_SERVER_IP non-empty}"
 : "${BE_JAVA_PORT:?Need to set env variable BE_JAVA_PORT non-empty}"
-: "${FE_SERVER_IP:?Need to set env variable FE_SERVER_IP non-empty}"
 : "${DB_SERVER_IP:?Need to set env variable DB_SERVER_IP non-empty}"
 : "${DATABASE:?Need to set env variable DATABASE non-empty}"
 : "${DB_USER_NAME:?Need to set env variable DB_USER_NAME non-empty}"
@@ -20,7 +19,9 @@ clone_repository() {
 }
 
 install_node() {
-  if ! command -v nvm &> /dev/null
+  # https://unix.stackexchange.com/questions/184508/nvm-command-not-available-in-bash-script
+  source ~/.nvm/nvm.sh
+  if [ "$?" != "0" ];
   then
       echo "Please install Node Version Manager."
       echo "To install or update nvm, you should run the install script."
@@ -28,8 +29,6 @@ install_node() {
       echo "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash"
       exit 2
   fi
-  # https://unix.stackexchange.com/questions/184508/nvm-command-not-available-in-bash-script
-  source ~/.nvm/nvm.sh
   nvm install "$1"
 }
 
@@ -90,9 +89,17 @@ main() {
 
   if ! command -v mvn &> /dev/null
   then
-      echo "Please install Apache Maven >= 3.6.1 version"
-      echo "sudo apt-get install maven"
-      exit 1
+    echo "Please install Apache Maven >= 3.6.1 version"
+    echo "sudo apt-get install maven"
+    exit 1
+  fi
+
+  # https://stackoverflow.com/questions/7334754/correct-way-to-check-java-version-from-bash-script
+  local java_version=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\1\2/p;')
+
+  if [ "$java_version" != "18" ]
+  then
+    echo "You should install openjdk of 1.8.x version"
   fi
 
   clone_repository https://github.com/protos-kr/eSchool.git eSchool
