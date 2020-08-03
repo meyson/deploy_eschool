@@ -19,11 +19,8 @@ clone_repository() {
 }
 
 install_node() {
-  # TODO google
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-
   # https://unix.stackexchange.com/questions/184508/nvm-command-not-available-in-bash-script
-  # shellcheck disable=SC1090
   . ~/.nvm/nvm.sh
   nvm install "$1"
 }

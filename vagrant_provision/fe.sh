@@ -7,6 +7,7 @@ install_httpd() {
 
   yum install -y httpd
   systemctl start httpd
+  systemctl enable httpd
   systemctl status httpd
 
   # create directories for vhosts
