@@ -31,24 +31,23 @@ install_node() {
 }
 
 edit_be_files() {
-  # todo change log lvl
-  sed -i -e "s|localhost:3306/eschool|$DB_SERVER_IP:3306/$DATABASE|g" \
-  eSchool/src/main/resources/application.properties
-	sed -i -e "s|DATASOURCE_USERNAME:root|DATASOURCE_USERNAME:$DB_USER_NAME|g" \
-	eSchool/src/main/resources/application.properties
-	sed -i -e "s|DATASOURCE_PASSWORD:root|DATASOURCE_PASSWORD:$DB_USER_PWD|g" \
-	eSchool/src/main/resources/application.properties
+  local props_dev="eSchool/src/main/resources/application.properties"
+  sed -i -e "s|localhost:3306/eschool|$DB_SERVER_IP:3306/$DATABASE|g" $props_dev
+	sed -i -e "s|DATASOURCE_USERNAME:root|DATASOURCE_USERNAME:$DB_USER_NAME|g" $props_dev
+	sed -i -e "s|DATASOURCE_PASSWORD:root|DATASOURCE_PASSWORD:$DB_USER_PWD|g" $props_dev
 	sed -i -e "s|ESCHOOL_APP_HOST:https://fierce-shore-32592.herokuapp.com|ESCHOOL_APP_HOST:http://localhost:$BE_JAVA_PORT|g" \
-	eSchool/src/main/resources/application.properties
+	$props_dev
+	sed -i -e "s|logging.level.root=INFO|logging.level.root=ERROR|g" $props_dev
+	sed -i -e "s|softserve.eschool=DEBUG|softserve.eschool=ERROR|g" $props_dev
 
-  sed -i -e "s|35.242.199.77:3306/ejournal|$DB_SERVER_IP:3306/$DATABASE|g" \
-  eSchool/src/main/resources/application-production.properties
-	sed -i -e "s|DATASOURCE_USERNAME:root|DATASOURCE_USERNAME:$DB_USER_NAME|g" \
-	eSchool/src/main/resources/application-production.properties
-	sed -i -e "s|DATASOURCE_PASSWORD:CS5eWQxnja0lAESd|DATASOURCE_PASSWORD:$DB_USER_PWD|g" \
-	eSchool/src/main/resources/application-production.properties
+  local props_prod="eSchool/src/main/resources/application-production.properties"
+  sed -i -e "s|35.242.199.77:3306/ejournal|$DB_SERVER_IP:3306/$DATABASE|g" $props_prod
+	sed -i -e "s|DATASOURCE_USERNAME:root|DATASOURCE_USERNAME:$DB_USER_NAME|g" $props_prod
+	sed -i -e "s|DATASOURCE_PASSWORD:CS5eWQxnja0lAESd|DATASOURCE_PASSWORD:$DB_USER_PWD|g" $props_prod
 	sed -i -e "s|ESCHOOL_APP_HOST:https://35.240.41.176:8443|ESCHOOL_APP_HOST:http://localhost:$BE_JAVA_PORT|g" \
-	eSchool/src/main/resources/application-production.properties
+	$props_prod
+	sed -i -e "s|logging.level.root=INFO|logging.level.root=ERROR|g" $props_prod
+	sed -i -e "s|softserve.eschool=INFO|softserve.eschool=ERROR|g" $props_prod
 }
 
 edit_fe_files() {
