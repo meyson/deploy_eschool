@@ -57,6 +57,25 @@ edit_fe_files() {
 }
 
 build_backend() {
+  local java_version
+  # https://stackoverflow.com/questions/7334754/correct-way-to-check-java-version-from-bash-script
+  java_version=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\1\2/p;')
+
+  # check dependencies
+  if ! command -v mvn &> /dev/null
+  then
+    echo "Please install Apache Maven >= 3.6.1 version"
+    echo "sudo apt-get install maven"
+    exit 1
+  fi
+
+  if [ "$java_version" != "18" ]
+  then
+    echo "You should install openjdk of 1.8.x version"
+    echo "sudo apt-get install openjdk-8-jdk"
+    exit 2
+  fi
+
   cd eSchool
   mvn clean && mvn package -DskipTests
   cp target/eschool.jar "../$DIST_DIR"
@@ -65,9 +84,24 @@ build_backend() {
 }
 
 build_frontend() {
-  cd final_project
+  # check and install node
   install_node "8.11.1"
-  npm install yarn -g
+
+  if ! command -v yarn &> /dev/null
+  then
+    echo "Please install Angular yarn version globally"
+    echo "npm install yarn -g"
+    exit 3
+  fi
+
+  if ! command -v ng &> /dev/null
+  then
+    echo "Please install Angular 7.0.0 version globally"
+    echo "npm install -g @angular/cli@7.0.3"
+    exit 4
+  fi
+
+  cd final_project
   yarn install
   ng build --prod
 
@@ -82,21 +116,6 @@ main() {
   cd build
   rm -rf "$DIST_DIR"
   mkdir -p "$DIST_DIR"
-
-  if ! command -v mvn &> /dev/null
-  then
-    echo "Please install Apache Maven >= 3.6.1 version"
-    echo "sudo apt-get install maven"
-    exit 1
-  fi
-
-  # https://stackoverflow.com/questions/7334754/correct-way-to-check-java-version-from-bash-script
-  local java_version=$(java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\..*"/\1\2/p;')
-
-  if [ "$java_version" != "18" ]
-  then
-    echo "You should install openjdk of 1.8.x version"
-  fi
 
   clone_repository https://github.com/protos-kr/eSchool.git eSchool
   edit_be_files
