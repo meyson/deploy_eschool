@@ -34,10 +34,7 @@ Vagrant.configure("2") do |config|
     be.vm.network :private_network, ip: ENV["BE_SERVER_1"]
     be.vm.synced_folder "./build/#{ENV['DIST_DIR']}",
         "/#{ENV['DIST_DIR']}", disabled: false
-    be.vm.provision "shell", path: "vagrant_provision/be.sh",
-    env: {
-        "DIST_DIR_BE" => ENV["DIST_DIR_BE"],
-    }
+    be.vm.provision "shell", path: "vagrant_provision/be.sh"
   end
 
   # Backend server 2
@@ -47,10 +44,7 @@ Vagrant.configure("2") do |config|
     be.vm.network :private_network, ip: ENV["BE_SERVER_2"]
     be.vm.synced_folder "./build/#{ENV['DIST_DIR']}",
         "/#{ENV['DIST_DIR']}", disabled: false
-    be.vm.provision "shell", path: "vagrant_provision/be.sh",
-    env: {
-        "DIST_DIR_BE" => ENV["DIST_DIR_BE"],
-    }
+    be.vm.provision "shell", path: "vagrant_provision/be.sh"
   end
 
   # Frontend server 1

@@ -35,9 +35,9 @@ EOF
 ln -s /etc/httpd/sites-available/"$1".conf /etc/httpd/sites-enabled/"$1".conf 2>&1
 }
 
-copy_files() {
+manage_files() {
   mkdir -p /var/www/"$FE_VHOST_NAME"/
-  cp -a /app/fe/. /var/www/"$FE_VHOST_NAME"
+  tar -xvf /app/fe.tar.gz -C /var/www/"$FE_VHOST_NAME"
   chown -R vagrant:vagrant /var/www/"$FE_VHOST_NAME"
   chmod -R 755 /var/www
   chcon -R -t httpd_sys_content_t /var/www/"$FE_VHOST_NAME"/
@@ -45,6 +45,6 @@ copy_files() {
 
 install_httpd
 configure_vhost "$FE_VHOST_NAME"
-copy_files
+manage_files
 setsebool -P httpd_unified 1
 systemctl restart httpd
