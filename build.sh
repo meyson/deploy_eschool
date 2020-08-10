@@ -66,7 +66,7 @@ build_backend() {
   then
     echo "Please install Apache Maven >= 3.6.1 version"
     echo "sudo apt-get install maven"
-    exit 1
+    exit 2
   fi
 
   if [ "$java_version" != "18" ]
@@ -91,14 +91,14 @@ build_frontend() {
   then
     echo "Please install Angular yarn version globally"
     echo "npm install yarn -g"
-    exit 3
+    exit 2
   fi
 
   if ! command -v ng &> /dev/null
   then
     echo "Please install Angular 7.0.0 version globally"
     echo "npm install -g @angular/cli@7.0.3"
-    exit 4
+    exit 2
   fi
 
   cd final_project
