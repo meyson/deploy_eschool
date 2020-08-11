@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
 
-# Check required environment variables
-: "${BE_LB_IP:?Need to set env variable BE_LB_IP non-empty}"
-: "${BE_JAVA_PORT:?Need to set env variable BE_JAVA_PORT non-empty}"
-: "${DB_SERVER_IP:?Need to set env variable DB_SERVER_IP non-empty}"
-: "${DATABASE:?Need to set env variable DATABASE non-empty}"
-: "${DB_USER_NAME:?Need to set env variable DB_USER_NAME non-empty}"
-: "${DB_USER_PWD:?Need to set env variable DB_USER_PWD non-empty}"
-: "${DIST_DIR:?Need to set env variable DIST_DIR non-empty}"
+# If a command fails, set -e will make the whole script exit,
+# instead of just resuming on the next line.
+set -e
+# Treat unset variables as an error, and immediately exit.
+set -u
 
 # clone repository if it doesn't exist otherwise just clear existing one
 clone_repository() {
