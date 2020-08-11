@@ -77,7 +77,7 @@ build_backend() {
   fi
 
   cd eSchool
-  mvn clean && mvn package -DskipTests
+  mvn clean && mvn package -Dtest=\!ScheduleControllerIntegrationTest*
   cp target/eschool.jar "../$DIST_DIR"
   echo "Backend is ready!"
   cd -
