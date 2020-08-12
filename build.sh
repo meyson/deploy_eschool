@@ -102,7 +102,7 @@ build_frontend() {
   yarn install
   ng build --prod
 
-  cp ../../new_files/fe/.htaccess ./dist/eSchool/.
+  cp ../../config_files/fe/.htaccess ./dist/eSchool/.
   tar -czf "../$DIST_DIR/fe.tar.gz" -C ./dist/eSchool/ .
   echo "Frontend is ready!"
   cd -

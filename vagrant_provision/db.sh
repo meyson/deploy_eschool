@@ -8,15 +8,20 @@ FLUSH PRIVILEGES;
 EOF
 }
 
-install_mysql() {
-  apt update
-  apt install -y mysql-server
+install_mariadb() {
+  yum install -y mariadb-server
+  systemctl start mariadb
+  systemctl enable mariadb
+
   # allow access from outside
-  echo "bind-address = $DB_SERVER_IP" >> /etc/mysql/mysql.conf.d/mysqld.cnf
+  sed -i "s/.*bind-address.*/bind-address = 0.0.0.0/" /etc/my.cnf.d/mariadb-server.cnf
+
+  firewall-cmd --permanent --zone=trusted --add-port=3306/tcp
+  firewall-cmd --reload
 }
 
-install_mysql
+install_mariadb
 mysql -e "CREATE DATABASE $DATABASE;" 2>/dev/null
 mysql_create_user "$DB_USER_NAME" "$DB_USER_PWD" "$BE_SERVER_1"
 mysql_create_user "$DB_USER_NAME" "$DB_USER_PWD" "$BE_SERVER_2"
-service mysql restart
+systemctl restart mariadb

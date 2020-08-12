@@ -2,12 +2,13 @@ configure_lb() {
 cat <<EOF > /etc/nginx/conf.d/lb.conf
 upstream lb {
     ip_hash;
-    server $BE_SERVER_1:$BE_JAVA_PORT;
-    server $BE_SERVER_2:$BE_JAVA_PORT;
+    server $SERVER_1:$PORT;
+    server $SERVER_2:$PORT;
 }
 
 server {
-    listen $BE_LB_IP:80;
+        listen 80 default_server;
+        listen [::]:80 default_server;
 
     location / {
         proxy_pass "http://lb";
@@ -23,6 +24,10 @@ install_nginx() {
   systemctl start nginx
   systemctl enable nginx
   setsebool httpd_can_network_connect on -P
+  # fixme
+  firewall-cmd --permanent --add-service=http
+  firewall-cmd --reload
+  sed -i "s|\s*default_server||g" /etc/nginx/nginx.conf
 }
 
 install_nginx
