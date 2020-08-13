@@ -17,7 +17,7 @@ Vagrant.configure("2") do |config|
         zone_config.image_family = "centos-8"
         zone_config.network_ip = ENV["DB_SERVER_IP"]
       end
-      # FIXME
+
       override.vm.provision :shell, path: "vagrant_provision/db.sh",
       env: {
           "DATABASE" => ENV["DATABASE"],
@@ -52,6 +52,7 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  # todo install wget python3 + sudo pip3 install requests paramiko
   config.vm.define "lb_be" do |subconfig|
     subconfig.vm.provider :google do |google, override|
       google.google_project_id = ENV["GCP_PROJECT_ID"]
@@ -79,7 +80,7 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.define "fe_lb" do |subconfig|
+  config.vm.define "lb_fe" do |subconfig|
     subconfig.vm.provider :google do |google, override|
       google.google_project_id = ENV["GCP_PROJECT_ID"]
       google.google_json_key_location = ENV["GCP_KEY"]

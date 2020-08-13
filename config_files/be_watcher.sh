@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+# TODO root > /home/user
 WATCH_FILE="/root/eschool.jar"
 
 PSID=""
@@ -17,6 +17,7 @@ reload_process() {
 # start program
 run_command
 
+# todo
 WHEN=$(stat -c "%Y" $WATCH_FILE || true)
 while true; do
   NOW=$(stat -c "%Y" $WATCH_FILE || true)
