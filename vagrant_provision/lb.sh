@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 configure_lb() {
 cat <<EOF > /etc/nginx/conf.d/lb.conf
 upstream lb {

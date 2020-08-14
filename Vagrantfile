@@ -52,7 +52,6 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  # todo install wget python3 + sudo pip3 install requests paramiko
   config.vm.define "lb_be" do |subconfig|
     subconfig.vm.provider :google do |google, override|
       google.google_project_id = ENV["GCP_PROJECT_ID"]
@@ -71,12 +70,23 @@ Vagrant.configure("2") do |config|
 
       override.ssh.username = ENV["SSH_USER"]
       override.ssh.private_key_path = ENV["SSH_KEY"]
-      override.vm.provision "shell", path: "vagrant_provision/lb.sh",
-      env: {
-          "SERVER_1" => ENV["BE_SERVER_1"],
-          "SERVER_2" => ENV["BE_SERVER_2"],
-          "PORT"     => ENV["BE_JAVA_PORT"],
-      }
+      override.vm.provision "configure_bastion",
+        type: "shell",
+        preserve_order: true,
+        path: "vagrant_provision/bastion.sh"
+      override.vm.provision "lb",
+        type: "shell",
+        preserve_order: true,
+        path: "vagrant_provision/lb.sh",
+        env: {
+            "SERVER_1" => ENV["BE_SERVER_1"],
+            "SERVER_2" => ENV["BE_SERVER_2"],
+            "PORT"     => ENV["BE_JAVA_PORT"],
+        }
+      override.trigger.after :up do |trigger|
+        trigger.info = "Transferring ssh keys..."
+        trigger.run = {path: "vagrant_provision/bastion_trigger.sh"}
+      end
     end
   end
 
