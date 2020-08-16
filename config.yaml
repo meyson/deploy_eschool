@@ -20,14 +20,15 @@ lb_fe:
 
 database:
   ip: 10.156.0.15
-  credentials: "/home/vova/devops/db_credentials_eschool.yaml"
+  credentials: /home/vova/devops/credentials/db_credentials_eschool.yaml
 
 gcp:
-  project_key: "/home/vova/.gcloud/test1-7b663e3daccc.json"
-  project_id: "test1-286117"
+  project_key: /home/vova/.gcloud/test1-7b663e3daccc.json
+  project_id: test1-286117
 
 ssh:
   user: vova
-  key: "/home/vova/.ssh/id_rsa"
+  key: /home/vova/.ssh/id_rsa
 
-
+other:
+  circleci_tocken: /home/vova/.circlecitoken

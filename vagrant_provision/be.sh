@@ -20,10 +20,10 @@ dist_dir="/opt/eschool"
 mkdir -p $dist_dir
 chown -R "$user:$user" $dist_dir
 cp "/vagrant/build/app/eschool.jar" "$dist_dir"
-cp "/vagrant/remote_configs/be_watcher.sh" "$dist_dir"
+cp "/vagrant/remote_configs/be/watcher.sh" "$dist_dir"
 
 # this script will reload java app when we deploy jar file
-chmod +x "$dist_dir/be_watcher.sh"
-run_as "$user" "bash $dist_dir/be_watcher.sh &"
+chmod +x "$dist_dir/watcher.sh"
+run_as "$user" "bash $dist_dir/watcher.sh &"
 # add watcher.sh to crontab
-run_as "$user" "crontab -l | { cat; echo \"@reboot $dist_dir/be_watcher.sh\"; } | crontab -"
+run_as "$user" "crontab -l | { cat; echo \"@reboot $dist_dir/watcher.sh\"; } | crontab -"
