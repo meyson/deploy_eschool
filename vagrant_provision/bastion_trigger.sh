@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SERVER="$SSH_USER@$LB_BE_EXT_IP"
+SERVER=$1
 scp ~/.ssh/id_rsa "$SERVER":~/.ssh/
-scp ./config_files/deploy.py "$SERVER":~/
+scp ./remote_configs/deploy.py "$SERVER":~/
 scp ~/.circlecitoken "$SERVER":~/

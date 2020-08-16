@@ -7,7 +7,7 @@ artifact_url="eschool_url.txt"
 APP_PSID=""
 
 run_command() {
-  java -jar "$app_path" -Dspring.profiles.active=production &
+  java -jar "$app_path" --spring.config.location="file:///$app_dir/application-production.properties" &
   APP_PSID=$!
   echo "Running! $(date) psid: $PSID"
 }
