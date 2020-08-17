@@ -63,7 +63,7 @@ Vagrant.configure("2") do |config|
   end
 
   # todo iterate over numbers
-  (0..be_ips.length).each do |i|
+  (0..be_ips.length - 1).each do |i|
     server_ip = be_ips[i]
     config.vm.define "be#{i}" do |subconfig|
       subconfig.vm.provider :google do |google, override|
@@ -114,11 +114,8 @@ Vagrant.configure("2") do |config|
         type: "shell",
         preserve_order: true,
         path: "vagrant_provision/lb.sh",
-        env: {
-          "SERVER_1" => be_ips[0],
-          "SERVER_2" => be_ips[1],
-          "PORT"     => be_port,
-        }
+        args: be_ips,
+        env: { "PORT" => be_port }
       override.trigger.after :up do |trigger|
         host = lb_be['external_ip']
         trigger.info = "Transferring ssh keys..."

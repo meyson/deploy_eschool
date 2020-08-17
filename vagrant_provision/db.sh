@@ -21,7 +21,10 @@ install_mariadb() {
 }
 
 install_mariadb
-mysql -e "CREATE DATABASE $DATABASE;" 2>/dev/null
-mysql_create_user "$DB_USER_NAME" "$DB_USER_PWD" "$BE_SERVER_1"
-mysql_create_user "$DB_USER_NAME" "$DB_USER_PWD" "$BE_SERVER_2"
+
+for server in "$@"
+do
+  mysql_create_user "$DB_USER_NAME" "$DB_USER_PWD" "$server"
+done
+
 systemctl restart mariadb

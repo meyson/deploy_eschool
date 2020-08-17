@@ -4,8 +4,7 @@ configure_lb() {
 cat <<EOF > /etc/nginx/conf.d/lb.conf
 upstream lb {
     ip_hash;
-    server $SERVER_1:$PORT;
-    server $SERVER_2:$PORT;
+    $1
 }
 
 server {
@@ -32,5 +31,11 @@ install_nginx() {
   sed -i "s|\s*default_server||g" /etc/nginx/nginx.conf
 }
 
+servers=""
+for server in "$@"
+do
+  servers+="server $server:$PORT; "
+done
+
 install_nginx
-configure_lb
+configure_lb "$servers"
