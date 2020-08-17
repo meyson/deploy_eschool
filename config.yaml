@@ -2,14 +2,17 @@
 be_servers:
   ips:
     - 10.156.0.50
-    - 10.156.0.51
+  #  - 10.156.0.51
   port: 8080
-
+  # distinction directory
+  dir: /opt/eschool
+  # jar name
+  app: eschool.jar
 
 fe_servers:
   ips:
     - 10.156.0.40
-    - 10.156.0.41
+  #  - 10.156.0.41
 
 lb_be:
   ip: 10.156.0.30
@@ -19,7 +22,10 @@ lb_fe:
   ip: 10.156.0.20
 
 database:
-  ip: 10.156.0.15
+  mysql:
+    ip: 10.156.0.15
+    port: 3306
+  # fixme
   credentials: /home/vova/devops/credentials/db_credentials_eschool.yaml
 
 gcp:
