@@ -1,6 +1,6 @@
-##!/usr/bin/env bash
+#!/usr/bin/env bash
 
-: "${FE_VHOST_NAME:?Need to set env variable FE_VHOST_NAME non-empty}"
+FE_VHOST_NAME="eschool"
 
 install_httpd() {
   local httpd_config="/etc/httpd/conf/httpd.conf"
@@ -9,13 +9,13 @@ install_httpd() {
   systemctl start httpd
   systemctl enable httpd
   systemctl status httpd
-
   # create directories for vhosts
   mkdir -p /etc/httpd/sites-available /etc/httpd/sites-enabled
 
   if ! grep -q "IncludeOptional sites-enabled/\*\.conf" "$httpd_config"; then
     echo "IncludeOptional sites-enabled/*.conf" >> "$httpd_config"
   fi
+  setsebool -P httpd_unified 1
 }
 
 configure_vhost() {
@@ -33,18 +33,8 @@ cat <<EOF > "/etc/httpd/sites-available/$1.conf"
 EOF
 # enable new host
 ln -s /etc/httpd/sites-available/"$1".conf /etc/httpd/sites-enabled/"$1".conf 2>&1
-}
-
-manage_files() {
-  mkdir -p /var/www/"$FE_VHOST_NAME"/
-  tar -xvf /app/fe.tar.gz -C /var/www/"$FE_VHOST_NAME"
-  chown -R vagrant:vagrant /var/www/"$FE_VHOST_NAME"
-  chmod -R 755 /var/www
-  chcon -R -t httpd_sys_content_t /var/www/"$FE_VHOST_NAME"/
+systemctl restart httpd
 }
 
 install_httpd
 configure_vhost "$FE_VHOST_NAME"
-manage_files
-setsebool -P httpd_unified 1
-systemctl restart httpd

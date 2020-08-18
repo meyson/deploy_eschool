@@ -1,13 +1,15 @@
+#!/usr/bin/env bash
+
 configure_lb() {
 cat <<EOF > /etc/nginx/conf.d/lb.conf
 upstream lb {
     ip_hash;
-    server $BE_SERVER_1:$BE_JAVA_PORT;
-    server $BE_SERVER_2:$BE_JAVA_PORT;
+    $1
 }
 
 server {
-    listen $BE_LB_IP:80;
+        listen 80 default_server;
+        listen [::]:80 default_server;
 
     location / {
         proxy_pass "http://lb";
@@ -23,7 +25,17 @@ install_nginx() {
   systemctl start nginx
   systemctl enable nginx
   setsebool httpd_can_network_connect on -P
+
+  firewall-cmd --permanent --add-service=http
+  firewall-cmd --reload
+  sed -i "s|\s*default_server||g" /etc/nginx/nginx.conf
 }
 
+servers=""
+for server in "$@"
+do
+  servers+="server $server:$PORT; "
+done
+
 install_nginx
-configure_lb
+configure_lb "$servers"

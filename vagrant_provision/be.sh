@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 
-# install jre and run app
+user=$(id -un 1000)
+
+# install software
 yum install -y java-1.8.0-openjdk
-cp "/app/eschool.jar" ~/
-java -jar ~/eschool.jar -Dspring.profiles.active=production &
+
+firewall-cmd --permanent --zone=trusted --add-port=8080/tcp
+firewall-cmd --reload
+
+mkdir -p "$DIST_DIR"
+chown -R "$user:$user" "$DIST_DIR"
+
