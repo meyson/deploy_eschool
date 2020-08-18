@@ -20,12 +20,13 @@ lb_be:
 
 lb_fe:
   ip: 10.156.0.20
+  external_ip: 34.107.68.140
 
 database:
   mysql:
     ip: 10.156.0.15
     port: 3306
-  # fixme
+  # path to credentials
   credentials: /home/vova/devops/credentials/db_credentials_eschool.yaml
 
 gcp:

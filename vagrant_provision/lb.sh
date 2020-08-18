@@ -25,7 +25,7 @@ install_nginx() {
   systemctl start nginx
   systemctl enable nginx
   setsebool httpd_can_network_connect on -P
-  # fixme
+
   firewall-cmd --permanent --add-service=http
   firewall-cmd --reload
   sed -i "s|\s*default_server||g" /etc/nginx/nginx.conf

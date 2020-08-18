@@ -30,15 +30,6 @@ def read_yaml(path):
             print(exc)
 
 
-def download_file(url):
-    local_filename = url.split('/')[-1]
-    with requests.get(url, stream=True) as r:
-        with open(local_filename, 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
-
-    return local_filename
-
-
 def get_artifact(slug, job_number):
     headers = {
         'Accept': 'application/json',
