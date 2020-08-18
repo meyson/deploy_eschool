@@ -1,6 +1,6 @@
 import argparse
 import os
-import shutil
+import time
 from pathlib import Path
 from string import Template
 
@@ -14,6 +14,9 @@ SSH_USER = os.environ['USER']
 DIR = Path('/home', SSH_USER, 'deploy_eschool')
 
 API_KEY = Path(DIR, '.circlecitoken').read_text().strip()
+
+# Wait in seconds
+sleep_betwen_deploy = 10
 
 # handle command line arguments
 parser = argparse.ArgumentParser(description='Deploy eschool')
@@ -51,27 +54,38 @@ def generate_bash_vars(pairs):
     return ''.join([f'export {key}={value} \n' for key, value in pairs.items()])
 
 
-eschool_temp = f'''
+be_temp = f'''
 # generated variables
 $bash_vars
 
 pid=$$(<"/var/run/user/1000/eschool.pid")
 kill $$pid
-rm "$app_path"
+rm -f "$app_path"
 curl -L $url > $app_path
-
 # run app
 java -jar "$app_path" &
 pid=$$!
 echo $$pid > "/var/run/user/1000/eschool.pid" 
 '''
 
-teplates = {
-    'be': Template(eschool_temp)
+fe_temp = f'''
+sudo rm -rf /var/www/eschool/
+sudo mkdir -p /var/www/eschool/
+sudo chown -R "$user:$user" /var/www/eschool/
+sudo chcon -R -t httpd_sys_content_t /var/www/eschool/
+
+curl -Ls $url | tar xvz -C /var/www/eschool/
+sudo \\cp /vagrant/remote_configs/fe/.htaccess /var/www/eschool/
+'''
+
+
+templates = {
+    'be': Template(be_temp),
+    'fe': Template(fe_temp)
 }
 
 
-def deploy_artifacts(server, artifacts, script, mapping):
+def deploy_artifacts(server, artifacts, script, mapping=None):
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -84,10 +98,15 @@ def deploy_artifacts(server, artifacts, script, mapping):
     for artifact in artifacts:
         url = artifact['url']
         name = artifact['path'].split('/')[-1]
-        script = script.substitute(name=name, url=url, **mapping)
+        if mapping is not None:
+            script = script.substitute(name=name, url=url, **mapping)
+        else:
+            script = script.substitute(name=name, url=url)
+
         # FIXME DELETE
         print(script)
         channel.exec_command(script)
+        time.sleep(sleep_betwen_deploy)
         print(f'Deploying {url} to {server}', '*' * 20)
 
 
@@ -112,14 +131,25 @@ def deploy_be(conf, db):
     artifacts = get_artifact(slug=slug, job_number=args.job)
     for server in be_servers['ips']:
         try:
-            deploy_artifacts(server, artifacts, teplates['be'], temp_vars)
+            deploy_artifacts(server, artifacts, templates['be'], temp_vars)
         except Exception as e:
             print(e)
             print(server, 'error')
 
 
-def deploy_fe():
-    pass
+def deploy_fe(conf):
+    slug = 'github/meyson/final_project'
+    artifacts = get_artifact(slug=slug, job_number=args.job)
+    fe_servers = conf['fe_servers']
+
+    for server in fe_servers['ips']:
+        try:
+            deploy_artifacts(server, artifacts, templates['fe'], {
+                'user': SSH_USER
+            })
+        except Exception as e:
+            print(e)
+            print(server, 'error')
 
 
 def main():
@@ -127,10 +157,9 @@ def main():
     db_creds = read_yaml(DIR / 'db_credentials_eschool.yaml')
 
     if args.project == 'be':
-        # config['be_servers']['ips'] = ['34.107.68.201']
         deploy_be(config, db_creds)
     elif args.project == 'fe':
-        pass
+        deploy_fe(config)
 
 
 if __name__ == '__main__':
