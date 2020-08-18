@@ -15,7 +15,7 @@ DIR = Path('/home', SSH_USER, 'deploy_eschool')
 
 API_KEY = Path(DIR, '.circlecitoken').read_text().strip()
 
-# Wait in seconds
+# Interval between deployments
 sleep_betwen_deploy = 10
 
 # handle command line arguments

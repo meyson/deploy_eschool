@@ -1,6 +1,4 @@
 .idea
 .vagrant
 build
-!build/app/eschool.jar
-!build/app/fe.tar.gz
 *.log
