@@ -11,9 +11,10 @@ CREDS = YAML.load_file(CFG['credentials'])
 gcp = CFG['gcp']
 ssh = CREDS['ssh']
 
-# gcp settings
+# google cloud settings
 project_id = gcp['project_id']
 project_key = gcp['project_key']
+zone = gcp['zone']
 
 # ssh keys
 ssh_user = ssh['user']
@@ -45,9 +46,10 @@ Vagrant.configure("2") do |config|
     subconfig.vm.provider :google do |google, override|
       google.google_project_id = project_id
       google.google_json_key_location = project_key
+      google.tags = ['db']
 
-      google.zone = "europe-west3-c"
-      google.zone_config "europe-west3-c" do |zone_config|
+      google.zone = zone
+      google.zone_config zone do |zone_config|
         zone_config.name = "eschool-db"
         zone_config.machine_type = "g1-small"
         zone_config.disk_size = "20"
@@ -73,9 +75,10 @@ Vagrant.configure("2") do |config|
       subconfig.vm.provider :google do |google, override|
         google.google_project_id = project_id
         google.google_json_key_location = project_key
+        google.tags = ['be', 'http-server']
 
-        google.zone = "europe-west3-c"
-        google.zone_config "europe-west3-c" do |zone_config|
+        google.zone = zone
+        google.zone_config zone do |zone_config|
           zone_config.name = "eschool-be#{i}"
           zone_config.machine_type = "g1-small"
           zone_config.disk_size = "20"
@@ -96,10 +99,10 @@ Vagrant.configure("2") do |config|
     subconfig.vm.provider :google do |google, override|
       google.google_project_id = project_id
       google.google_json_key_location = project_key
-      google.tags = ['http-server']
+      google.tags = ['lb-be', 'http-server']
 
-      google.zone = "europe-west3-c"
-      google.zone_config "europe-west3-c" do |zone_config|
+      google.zone = zone
+      google.zone_config zone do |zone_config|
         zone_config.name = "eschool-lb-be"
         zone_config.machine_type = "f1-micro"
         zone_config.disk_size = "20"
@@ -115,12 +118,15 @@ Vagrant.configure("2") do |config|
         preserve_order: true,
         path: "vagrant_provision/bastion.sh",
         env: { "REGULAR_USER" => ssh_user }
+
       override.vm.provision "lb",
         type: "shell",
         preserve_order: true,
         path: "vagrant_provision/lb.sh",
         args: be_ips,
         env: { "PORT" => be_port }
+
+      # Send credentials to bastion (load balancer)
       override.trigger.after :up do |trigger|
         host = lb_be['external_ip']
         trigger.info = "Transferring ssh keys..."
@@ -137,10 +143,10 @@ Vagrant.configure("2") do |config|
     subconfig.vm.provider :google do |google, override|
       google.google_project_id = project_id
       google.google_json_key_location = project_key
-      google.tags = ['http-server']
+      google.tags = ['fe-lb', 'http-server']
 
-      google.zone = "europe-west3-c"
-      google.zone_config "europe-west3-c" do |zone_config|
+      google.zone = zone
+      google.zone_config zone do |zone_config|
         zone_config.name = "eschool-lb-fe"
         zone_config.machine_type = "f1-micro"
         zone_config.disk_size = "20"
@@ -166,10 +172,10 @@ Vagrant.configure("2") do |config|
        subconfig.vm.provider :google do |google, override|
            google.google_project_id = project_id
            google.google_json_key_location = project_key
-           google.tags = ['http-server']
+           google.tags = ['fe', 'http-server']
 
-           google.zone = "europe-west3-c"
-           google.zone_config "europe-west3-c" do |zone_config|
+           google.zone = zone
+           google.zone_config zone do |zone_config|
              zone_config.name = "eschool-fe#{i}"
              zone_config.machine_type = "f1-micro"
              zone_config.disk_size = "20"

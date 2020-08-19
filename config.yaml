@@ -34,6 +34,7 @@ database:
 gcp:
   project_key: /home/vova/.gcloud/test1-7b663e3daccc.json
   project_id: test1-286117
+  zone: europe-west3-c
 
 # this file stores db passwords, ssh keys and tokens
 credentials: /home/vova/devops/credentials/credentials_eschool_prod.yaml

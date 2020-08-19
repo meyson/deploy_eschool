@@ -30,7 +30,7 @@ ssh "$HOST_AND_USER" "mv deploy_eschool/--job 30 --project be"
 sleep 20
 
 # Start Back-end servers
-ssh "$HOST_AND_USER" "python3 deploy_eschool/deploy.py --job 30 --project be"
+ssh "$HOST_AND_USER" "python3 deploy_eschool/deploy.py --job 30 --project be --credentials credentials_eschool_prod.yaml"
 
 # Start Front-end servers
-ssh "$HOST_AND_USER" "python3 deploy_eschool/deploy.py --job 28 --project fe"
+ssh "$HOST_AND_USER" "python3 deploy_eschool/deploy.py --job 28 --project fe --credentials credentials_eschool_prod.yaml"
