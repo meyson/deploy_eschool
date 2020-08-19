@@ -1,4 +1,5 @@
 ---
+# we can specify as many ips as we want eg. 2 ips = 2 backend servers
 be_servers:
   ips:
     - 10.156.0.50
@@ -6,7 +7,7 @@ be_servers:
   port: 8080
   # distinction directory
   dir: /opt/eschool
-  # jar name
+  # jar file name
   app: eschool.jar
 
 fe_servers:
@@ -14,10 +15,12 @@ fe_servers:
     - 10.156.0.40
   #  - 10.156.0.41
 
+# back-end load balancer
 lb_be:
   ip: 10.156.0.30
   external_ip: 34.89.229.73
 
+# front-end load balancer
 lb_fe:
   ip: 10.156.0.20
   external_ip: 34.107.68.140
@@ -26,16 +29,11 @@ database:
   mysql:
     ip: 10.156.0.15
     port: 3306
-  # path to credentials
-  credentials: /home/vova/devops/credentials/db_credentials_eschool.yaml
 
+# google cloud platform settings
 gcp:
   project_key: /home/vova/.gcloud/test1-7b663e3daccc.json
   project_id: test1-286117
 
-ssh:
-  user: vova
-  key: /home/vova/.ssh/id_rsa
-
-other:
-  circleci_tocken: /home/vova/.circlecitoken
+# this file stores db passwords, ssh keys and tokens
+credentials: /home/vova/devops/credentials/credentials_eschool_prod.yaml

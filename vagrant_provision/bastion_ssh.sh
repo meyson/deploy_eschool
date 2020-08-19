@@ -4,8 +4,7 @@
 USER=$1
 HOST=$2
 SSH_KEY=$3
-DB_CREDS_PATH=$4
-CIRCLE_CI_PATH=$5
+CREDS_PATH=$4
 
 HOST_AND_USER="$USER@$HOST"
 DIR="deploy_eschool"
@@ -24,10 +23,14 @@ add_to_known() {
 add_to_known "$HOST"
 # send credentials form local machine
 scp "$SSH_KEY" "$HOST_AND_USER":~/.ssh/
-scp "$DB_CREDS_PATH" "$HOST_AND_USER":~/$DIR
-scp "$CIRCLE_CI_PATH" "$HOST_AND_USER":~/$DIR
+scp "$CREDS_PATH" "$HOST_AND_USER":~/$DIR
+ssh "$HOST_AND_USER" "mv deploy_eschool/--job 30 --project be"
 
+# wait for vagrant to setup infrastructure
 sleep 20
 
 # Start Back-end servers
 ssh "$HOST_AND_USER" "python3 deploy_eschool/deploy.py --job 30 --project be"
+
+# Start Front-end servers
+ssh "$HOST_AND_USER" "python3 deploy_eschool/deploy.py --job 28 --project fe"

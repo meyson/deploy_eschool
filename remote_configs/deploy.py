@@ -8,22 +8,6 @@ import paramiko
 import requests
 import yaml
 
-# global variables
-SSH_USER = os.environ['USER']
-# directory that contains this script and credentials
-DIR = Path('/home', SSH_USER, 'deploy_eschool')
-
-API_KEY = Path(DIR, '.circlecitoken').read_text().strip()
-
-# Wait in seconds
-sleep_betwen_deploy = 10
-
-# handle command line arguments
-parser = argparse.ArgumentParser(description='Deploy eschool')
-parser.add_argument('-j', '--job', default='', type=int, help='job number')
-parser.add_argument('-p', '--project', default='be', type=str, help='project be or fe')
-args = parser.parse_args()
-
 
 def read_yaml(path):
     with open(path, 'r') as stream:
@@ -33,6 +17,27 @@ def read_yaml(path):
             print(exc)
 
 
+# handle command line arguments
+parser = argparse.ArgumentParser(description='Deploy eschool')
+parser.add_argument('-j', '--job', default='', type=int, help='job number')
+parser.add_argument('-p', '--project', default='be', type=str, help='project be or fe')
+parser.add_argument('-c', '--config', default='config.yaml', type=str, help='project config file')
+parser.add_argument('-s', '--credentials', default='credentials.yaml', type=str, help='project config file')
+args = parser.parse_args()
+
+# directory that contains this script and credentials
+DIR = Path('/home', os.environ['USER'], 'deploy_eschool')
+# Interval between deployments
+sleep_betwen_deploy = 10
+# read yaml configs
+CONFIG = read_yaml(DIR / args.config)
+CREDS = read_yaml(DIR / args.credentials)
+
+API_KEY = CREDS['circleci_tocken']
+SSH_USER = CREDS['ssh']['user']
+
+
+# Fetch artifact using CircliCI REST API
 def get_artifact(slug, job_number):
     headers = {
         'Accept': 'application/json',
@@ -49,43 +54,7 @@ def get_artifact(slug, job_number):
     return json['items']
 
 
-# dictionary to bash variables
-def generate_bash_vars(pairs):
-    return ''.join([f'export {key}={value} \n' for key, value in pairs.items()])
-
-
-be_temp = f'''
-# generated variables
-$bash_vars
-
-pid=$$(<"/var/run/user/1000/eschool.pid")
-kill $$pid
-rm -f "$app_path"
-curl -L $url > $app_path
-# run app
-java -jar "$app_path" &
-pid=$$!
-echo $$pid > "/var/run/user/1000/eschool.pid" 
-'''
-
-fe_temp = f'''
-sudo rm -rf /var/www/eschool/
-sudo mkdir -p /var/www/eschool/
-sudo chown -R "$user:$user" /var/www/eschool/
-sudo chcon -R -t httpd_sys_content_t /var/www/eschool/
-
-curl -Ls $url | tar xvz -C /var/www/eschool/
-sudo \\cp /vagrant/remote_configs/fe/.htaccess /var/www/eschool/
-'''
-
-
-templates = {
-    'be': Template(be_temp),
-    'fe': Template(fe_temp)
-}
-
-
-def deploy_artifacts(server, artifacts, script, mapping=None):
+def deploy_artifacts(server, artifacts, script, script_mapping=None):
     client = paramiko.SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -98,16 +67,49 @@ def deploy_artifacts(server, artifacts, script, mapping=None):
     for artifact in artifacts:
         url = artifact['url']
         name = artifact['path'].split('/')[-1]
-        if mapping is not None:
-            script = script.substitute(name=name, url=url, **mapping)
-        else:
-            script = script.substitute(name=name, url=url)
+        mapping = {
+            'name': name,
+            'url': url
+        }
+        if script_mapping is not None:
+            mapping = {**mapping, **script_mapping}
 
+        script = script.substitute(mapping)
         # FIXME DELETE
         print(script)
         channel.exec_command(script)
         time.sleep(sleep_betwen_deploy)
         print(f'Deploying {url} to {server}', '*' * 20)
+
+
+# dictionary to spring application properties
+def generate_app_props(pairs):
+    return ''.join([f'-D{key}="{value}" ' for key, value in pairs.items()])
+
+
+be_temp = f'''
+pid=$$(<"/var/run/user/1000/eschool.pid")
+kill $$pid
+rm -f "$app_path"
+curl -L $url > $app_path
+java $app_props -jar "$app_path" &
+pid=$$!
+echo $$pid > "/var/run/user/1000/eschool.pid" 
+'''
+
+fe_temp = f'''
+sudo rm -rf /var/www/eschool/
+sudo mkdir -p /var/www/eschool/
+sudo chown -R "$user:$user" /var/www/eschool/
+sudo chcon -R -t httpd_sys_content_t /var/www/eschool/
+curl -Ls $url | tar xvz -C /var/www/eschool/
+sudo \\cp /vagrant/remote_configs/fe/.htaccess /var/www/eschool/
+'''
+
+templates = {
+    'be': Template(be_temp),
+    'fe': Template(fe_temp)
+}
 
 
 def deploy_be(conf, db):
@@ -118,13 +120,13 @@ def deploy_be(conf, db):
 
     db_url = f'jdbc:mysql://{mysql["ip"]}:{mysql["port"]}/{mysql["db"]}?useUnicode=true' \
              '&characterEncoding=utf8&createDatabaseIfNotExist=true&&autoReconnect=true&useSSL=false'
-    bash_vars = generate_bash_vars({
-        'DATASOURCE_USERNAME': mysql['user'],
-        'DATASOURCE_PASSWORD': mysql['password'],
-        'DATASOURCE_URL': db_url
+    app_props = generate_app_props({
+        'spring.datasource.username': mysql['user'],
+        'spring.datasource.password': mysql['password'],
+        'spring.datasource.url': db_url
     })
     temp_vars = {
-        'bash_vars': bash_vars,
+        'app_props': app_props,
         'app_path': be_servers['dir'] + '/' + be_servers['app']
     }
 
@@ -153,13 +155,11 @@ def deploy_fe(conf):
 
 
 def main():
-    config = read_yaml(DIR / 'config.yaml')
-    db_creds = read_yaml(DIR / 'db_credentials_eschool.yaml')
-
     if args.project == 'be':
-        deploy_be(config, db_creds)
+        # we only need credentials when we deploy back-end servers
+        deploy_be(CONFIG, CREDS)
     elif args.project == 'fe':
-        deploy_fe(config)
+        deploy_fe(CONFIG)
 
 
 if __name__ == '__main__':
