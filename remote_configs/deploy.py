@@ -43,7 +43,6 @@ def get_artifact(slug, job_number):
         'Accept': 'application/json',
         'Circle-Token': f'{API_KEY}'
     }
-
     response = requests.get(
         f'https://circleci.com/api/v2/project/{slug}/{job_number}/artifacts',
         headers=headers)
@@ -75,7 +74,6 @@ def deploy_artifacts(server, artifacts, script, script_mapping=None):
             mapping = {**mapping, **script_mapping}
 
         script = script.substitute(mapping)
-        # FIXME DELETE
         print(script)
         channel.exec_command(script)
         time.sleep(sleep_betwen_deploy)

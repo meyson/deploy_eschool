@@ -55,7 +55,6 @@ Vagrant.configure("2") do |config|
         zone_config.disk_size = "20"
         zone_config.image_family = "centos-8"
         zone_config.network_ip = conf_mysql['ip']
-        
       end
 
       override.ssh.username = ssh_user
@@ -85,7 +84,6 @@ Vagrant.configure("2") do |config|
           zone_config.disk_size = "20"
           zone_config.image_family = "centos-7"
           zone_config.network_ip = server_ip
-          
         end
 
         override.ssh.username = ssh_user
@@ -183,7 +181,6 @@ Vagrant.configure("2") do |config|
              zone_config.disk_size = "20"
              zone_config.image_family = "centos-7"
              zone_config.network_ip = server_ip
-             
            end
 
            override.ssh.username = ssh_user
