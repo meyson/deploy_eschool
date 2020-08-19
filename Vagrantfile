@@ -3,24 +3,29 @@
 
 require 'yaml'
 
-# Glocal variables
+# load config file
 CFG = YAML.load_file('config.yaml')
+# load credentials file
+CREDS = YAML.load_file(CFG['credentials'])
 
 gcp = CFG['gcp']
-ssh = CFG['ssh']
-be_servers = CFG['be_servers']
-fe_servers = CFG['fe_servers']
+ssh = CREDS['ssh']
 
+# gcp settings
 project_id = gcp['project_id']
 project_key = gcp['project_key']
+
+# ssh keys
 ssh_user = ssh['user']
 ssh_key = ssh['key']
 
 # be servers
+be_servers = CFG['be_servers']
 be_ips = be_servers['ips']
 be_port = be_servers['port']
 
 # fe servers
+fe_servers = CFG['fe_servers']
 fe_ips = fe_servers['ips']
 
 # load balancers
@@ -29,12 +34,7 @@ lb_be = CFG['lb_be']
 
 # databases
 conf_mysql = CFG['database']['mysql']
-db_credentials_file = CFG['database']['credentials']
-db_credentials = YAML.load_file(db_credentials_file)
-creds_mysql = db_credentials['mysql']
-
-# circleci
-circleci_tocken = CFG['other']['circleci_tocken']
+creds_mysql = CREDS['mysql']
 
 
 Vagrant.configure("2") do |config|
@@ -126,7 +126,7 @@ Vagrant.configure("2") do |config|
         trigger.info = "Transferring ssh keys..."
         trigger.run = {
           path: "vagrant_provision/bastion_ssh.sh",
-          args: [ssh_user, host, ssh_key, db_credentials_file, circleci_tocken]
+          args: [ssh_user, host, ssh_key, CFG['credentials']]
         }
       end
     end
@@ -184,5 +184,4 @@ Vagrant.configure("2") do |config|
        end
     end
   end
-
 end
