@@ -3,7 +3,7 @@
 be_servers:
   ips:
     - 10.156.0.50
-  #  - 10.156.0.51
+    - 10.156.0.51
   port: 8080
   # distinction directory
   dir: /opt/eschool
@@ -13,7 +13,7 @@ be_servers:
 fe_servers:
   ips:
     - 10.156.0.40
-  #  - 10.156.0.41
+    - 10.156.0.41
 
 # back-end load balancer
 lb_be:

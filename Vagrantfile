@@ -124,7 +124,7 @@ Vagrant.configure("2") do |config|
         preserve_order: true,
         path: "vagrant_provision/lb.sh",
         args: be_ips,
-        env: { "PORT" => be_port }
+        env: { "PORT" => be_port, "TYPE" => "be"}
 
       # Send credentials to bastion (load balancer)
       override.trigger.after :up do |trigger|
@@ -161,7 +161,7 @@ Vagrant.configure("2") do |config|
         type: "shell",
         path: "vagrant_provision/lb.sh",
         args: fe_ips,
-        env: { "PORT" => 80 }
+        env: { "PORT" => 80, "TYPE" => "fe"}
     end
   end
 

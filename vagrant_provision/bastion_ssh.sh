@@ -24,7 +24,6 @@ add_to_known "$HOST"
 # send credentials form local machine
 scp "$SSH_KEY" "$HOST_AND_USER":~/.ssh/
 scp "$CREDS_PATH" "$HOST_AND_USER":~/$DIR
-ssh "$HOST_AND_USER" "mv deploy_eschool/--job 30 --project be"
 
 # wait for vagrant to setup infrastructure
 sleep 20
