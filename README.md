@@ -1,5 +1,7 @@
 ### Deploy Eschool
 
+![Screenshot](infrastructure_diagram.svg)
+
 #### Before you begin:
 - Install vagrant 2.2.9
     - [Download and install Vagrant](vagrantup.com/downloads.html)

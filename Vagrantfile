@@ -132,7 +132,10 @@ Vagrant.configure("2") do |config|
         trigger.info = "Transferring ssh keys..."
         trigger.run = {
           path: "vagrant_provision/bastion_ssh.sh",
-          args: [ssh_user, host, ssh_key, CFG['credentials']]
+          args: [
+            ssh_user, host, ssh_key, CFG['credentials'],
+            be_servers['stable'], fe_servers['stable']
+          ]
         }
       end
     end
