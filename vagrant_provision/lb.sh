@@ -35,6 +35,7 @@ install_nginx() {
   sed -i "s|\s*default_server||g" /etc/nginx/nginx.conf
 }
 
+# Generate upstream servers
 servers=""
 for server in "$@"
 do

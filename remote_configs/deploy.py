@@ -74,7 +74,6 @@ def deploy_artifacts(server, artifacts, script, script_mapping=None):
             mapping = {**mapping, **script_mapping}
 
         script = script.substitute(mapping)
-        print(script)
         channel.exec_command(script)
         time.sleep(sleep_betwen_deploy)
         print(f'Deploying {url} to {server}', '*' * 20)
