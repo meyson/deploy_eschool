@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='Deploy eschool')
 parser.add_argument('-j', '--job', default='', type=int, help='job number')
 parser.add_argument('-p', '--project', default='be', type=str, help='project be or fe')
 parser.add_argument('-c', '--config', default='config.yaml', type=str, help='project config file')
-parser.add_argument('-s', '--credentials', default='credentials.yaml', type=str, help='project config file')
+parser.add_argument('-s', '--credentials', default='credentials.yaml', type=str, help='project credentials file')
 args = parser.parse_args()
 
 # directory that contains this script and credentials
