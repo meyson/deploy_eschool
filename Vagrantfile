@@ -82,7 +82,7 @@ Vagrant.configure("2") do |config|
           zone_config.name = "eschool-be#{i}"
           zone_config.machine_type = "g1-small"
           zone_config.disk_size = "20"
-          zone_config.image_family = "centos-7"
+          zone_config.image_family = "centos-8"
           zone_config.network_ip = server_ip
         end
 
