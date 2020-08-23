@@ -124,7 +124,7 @@ Vagrant.configure("2") do |config|
         preserve_order: true,
         path: "vagrant_provision/lb.sh",
         args: be_ips,
-        env: { "PORT" => be_port }
+        env: { "PORT" => be_port, "TYPE" => "be"}
 
       # Send credentials to bastion (load balancer)
       override.trigger.after :up do |trigger|
@@ -132,7 +132,10 @@ Vagrant.configure("2") do |config|
         trigger.info = "Transferring ssh keys..."
         trigger.run = {
           path: "vagrant_provision/bastion_ssh.sh",
-          args: [ssh_user, host, ssh_key, CFG['credentials']]
+          args: [
+            ssh_user, host, ssh_key, CFG['credentials'],
+            be_servers['stable'], fe_servers['stable']
+          ]
         }
       end
     end
@@ -161,7 +164,7 @@ Vagrant.configure("2") do |config|
         type: "shell",
         path: "vagrant_provision/lb.sh",
         args: fe_ips,
-        env: { "PORT" => 80 }
+        env: { "PORT" => 80, "TYPE" => "fe"}
     end
   end
 

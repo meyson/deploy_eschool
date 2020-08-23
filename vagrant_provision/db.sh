@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 mysql_create_user() {
-mysql << EOF
+mysql << EOF || true
 CREATE USER '$1'@'$3' IDENTIFIED BY '$2';
 GRANT ALL PRIVILEGES ON * . * TO '$1'@'$3';
 FLUSH PRIVILEGES;

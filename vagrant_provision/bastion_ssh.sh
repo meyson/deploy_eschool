@@ -5,6 +5,8 @@ USER=$1
 HOST=$2
 SSH_KEY=$3
 CREDS_PATH=$4
+BE_STABLE_BUILD=$5
+FE_STABLE_BUILD=$6
 
 HOST_AND_USER="$USER@$HOST"
 DIR="deploy_eschool"
@@ -24,13 +26,13 @@ add_to_known "$HOST"
 # send credentials form local machine
 scp "$SSH_KEY" "$HOST_AND_USER":~/.ssh/
 scp "$CREDS_PATH" "$HOST_AND_USER":~/$DIR
-ssh "$HOST_AND_USER" "mv deploy_eschool/--job 30 --project be"
 
 # wait for vagrant to setup infrastructure
 sleep 20
 
+
 # Start Back-end servers
-ssh "$HOST_AND_USER" "python3 deploy_eschool/deploy.py --job 30 --project be --credentials credentials_eschool_prod.yaml"
+ssh "$HOST_AND_USER" "python3 deploy_eschool/deploy.py -j $BE_STABLE_BUILD -p be --credentials credentials_eschool_prod.yaml"
 
 # Start Front-end servers
-ssh "$HOST_AND_USER" "python3 deploy_eschool/deploy.py --job 28 --project fe --credentials credentials_eschool_prod.yaml"
+ssh "$HOST_AND_USER" "python3 deploy_eschool/deploy.py -j $FE_STABLE_BUILD -p fe --credentials credentials_eschool_prod.yaml"

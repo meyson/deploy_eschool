@@ -3,9 +3,12 @@
 configure_lb() {
 cat <<EOF > /etc/nginx/conf.d/lb.conf
 upstream lb {
-    ip_hash;
     $1
+    $2
 }
+
+# custom logs
+log_format upstreamlog '[\$time_local] \$remote_addr - \$remote_user - \$server_name \$host to: \$upstream_addr: \$request \$status upstream_response_time \$upstream_response_time msec \$msec request_time \$request_time';
 
 server {
         listen 80 default_server;
@@ -14,6 +17,7 @@ server {
     location / {
         proxy_pass "http://lb";
     }
+    access_log /var/log/nginx/access.log upstreamlog;
 }
 EOF
 systemctl reload nginx
@@ -31,6 +35,7 @@ install_nginx() {
   sed -i "s|\s*default_server||g" /etc/nginx/nginx.conf
 }
 
+# Generate upstream servers
 servers=""
 for server in "$@"
 do
@@ -38,4 +43,11 @@ do
 done
 
 install_nginx
-configure_lb "$servers"
+
+if [ "$TYPE" == "fe" ]; then
+  # Use round robin
+  configure_lb "" "$servers"
+elif [ "$TYPE" == "be" ]; then
+  # Use ip_hash
+  configure_lb "ip_hash;" "$servers"
+fi

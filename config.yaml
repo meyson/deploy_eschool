@@ -3,17 +3,19 @@
 be_servers:
   ips:
     - 10.156.0.50
-  #  - 10.156.0.51
+    - 10.156.0.51
   port: 8080
   # distinction directory
   dir: /opt/eschool
   # jar file name
   app: eschool.jar
+  stable: 30
 
 fe_servers:
   ips:
     - 10.156.0.40
-  #  - 10.156.0.41
+    - 10.156.0.41
+  stable: 28
 
 # back-end load balancer
 lb_be:
