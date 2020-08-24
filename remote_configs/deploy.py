@@ -1,5 +1,4 @@
 import argparse
-import os
 import time
 from pathlib import Path
 from string import Template
@@ -26,7 +25,7 @@ parser.add_argument('-s', '--credentials', default='credentials.yaml', type=str,
 args = parser.parse_args()
 
 # directory that contains this script and credentials
-DIR = Path('/home', os.environ['USER'], 'deploy_eschool')
+DIR = Path.home() / 'deploy_eschool'
 # Interval between deployments
 sleep_betwen_deploy = 10
 # read yaml configs
