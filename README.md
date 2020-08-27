@@ -11,7 +11,7 @@
     - [You can follow instruction here](https://github.com/mitchellh/vagrant-google) 
     - [Register external IP in GCP](https://console.cloud.google.com/networking/addresses/)
 
-- Fork repositories ([front-end](https://github.com/yurkovskiy/final_project), [back-end](https://github.com/yurkovskiy/eSchool)) and add them to CircleCI
+- Fork repositories ([front-end](https://github.com/meyson/final_project), [back-end](https://github.com/meyson/eSchool)) and add them to CircleCI
     - Create circleci token and place it in your credentials.yalm
     - Add ssh keys of lb_be to CircleCI
     - Add env variables SSH_HOST=(your external ip for lb_be), SSH_USER=(lb_be user)
